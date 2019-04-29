@@ -115,3 +115,8 @@ def resolve(code):
 
 def dummy():
     return '', 204
+
+
+def health():
+    data = dict({'status':'UP'})
+    return jsonify(data), 200
