@@ -19,6 +19,7 @@ class Configuration:
         self.logging = None
         self.webservice_url = None
         self.database = None
+        self.enable_signup_endpoint = False
         self.initialize()
 
     def _read_cfg(self):
@@ -52,6 +53,7 @@ class Configuration:
         self.logging = self.cfg['logging']
         self.webservice_url = "{0}://{1}:{2}".format(
             self.schema, self.host, self.port)
+        self.enable_signup_endpoint = self.cfg['pygmy']['enable_signup_endpoint']
 
         if self.database['engine'] == 'sqlite3':
             root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
