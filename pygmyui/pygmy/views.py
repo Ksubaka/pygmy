@@ -43,6 +43,9 @@ class URLForm(forms.Form):
 
 
 def link_shortener(request):
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     pygmy_client = pygmy_client_object(settings, request)
     if request.method == 'POST':
         form = URLForm(request.POST)
@@ -75,6 +78,9 @@ def link_shortener(request):
 
 def get_short_link(request, code):
     """TODO: Validate code"""
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     if request.method == 'GET':
         try:
             # TODO: use urljoin
@@ -109,6 +115,9 @@ def link_unshorten(request, code):
 
 def short_link_stats(request, code):
     """Get stats about short code."""
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     pygmy_client = pygmy_client_object(settings, request)
     if request.method == 'GET':
         try:
@@ -130,6 +139,9 @@ def short_link_stats(request, code):
 
 def link_auth(request):
     """View for handeling protected short links"""
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     if request.method == 'GET':
         code = request.GET.get('next')
         if not code:
