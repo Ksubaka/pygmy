@@ -199,3 +199,11 @@ def check_available(request):
     pygmy_client = pygmy_client_object(settings, request)
     is_available = pygmy_client.is_available(custom_code)
     return JsonResponse(dict(ok=is_available))
+
+
+def is_client_ip_allowed_to_access(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')

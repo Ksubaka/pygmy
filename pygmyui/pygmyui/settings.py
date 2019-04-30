@@ -153,3 +153,7 @@ HOSTNAME = '127.0.0.1:8000'
 # Load tests if PYGMYUI_TEST environment variable is set
 if os.environ.get('PYGMYUI_TEST') is not None:
     from pygmyui.settings_tests import *    # pylint: disable=W0614, E0611, E0401
+
+PYGMY_ALLOWED_CLIENT_IPS = {}
+if os.environ.get('PYGMY_ALLOWED_CLIENT_IPS') is not None:
+    PYGMY_ALLOWED_CLIENT_IPS = set(os.environ.get('PYGMY_ALLOWED_CLIENT_IPS').split(','))
