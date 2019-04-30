@@ -2,6 +2,7 @@ from flask import request, jsonify
 from flask.views import MethodView
 from passlib.hash import bcrypt
 
+from pygmy.config import config
 from pygmy.model import UserManager, LinkManager
 from pygmy.validator.user import UserSchema
 from pygmy.validator.link import LinkSchema
@@ -12,6 +13,7 @@ class UserApi(MethodView):
     """Signup and get user info"""
     schema = UserSchema()
 
+    @APITokenAuth.token_required
     def get(self, user_id=None):
         params = dict()
         if user_id is not None:
@@ -25,6 +27,8 @@ class UserApi(MethodView):
         return jsonify(result.data), 200
 
     def post(self):
+        if not config.pygmy.get('enable_signup_endpoint'):
+            return jsonify(dict(error="Forbidden")), 403
         # TODO: post should behave like upsert
         manager = UserManager()
         payload = request.get_json()
