@@ -162,6 +162,9 @@ def link_auth(request):
 
 def dashboard(request):
     """Returns the list of signed up user links"""
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     access_token = request.COOKIES.get(AUTH_COOKIE_NAME)
     if not access_token:
         return render(request, '400.html', context=INVALID_TOKEN, status=400)
@@ -182,6 +185,9 @@ def dashboard(request):
 
 def index(request):
     """Index page"""
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     response = render(request, 'pygmy/index.html')
     if (request.COOKIES.get(AUTH_COOKIE_NAME) and
             request.COOKIES.get('refresh_token')):
@@ -193,6 +199,9 @@ def index(request):
 
 
 def check_available(request):
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     custom_code = request.GET.get('custom_code')
     if not custom_code:
         return JsonResponse(dict(ok=False))
@@ -202,8 +211,10 @@ def check_available(request):
 
 
 def is_client_ip_allowed_to_access(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
+    try:
+        x_forwarded_for = request.META['HTTP_X_FORWARDED_FOR']
+        ip = x_forwarded_for.split(',')[-1]
+        return ip in settings.ALLOWED_CLIENT_IPS
+    except:
+        pass
+    return False
