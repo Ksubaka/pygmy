@@ -30,7 +30,7 @@ class LongUrlApi(MethodView):
         result = self.schema.dump(link)
         return jsonify(result.data), 200
 
-    @APITokenAuth.token_optional
+    @APITokenAuth.token_required
     def post(self):
         payload = request.get_json()
         data, errors = self.schema.load(payload)
@@ -91,7 +91,8 @@ class ShortURLApi(MethodView):
 def resolve(code):
     """Resolve the short url. code=301 PERMANENT REDIRECTION"""
     # TODO not needed
-    user_email = APITokenAuth.get_jwt_identity()
+    user_email = \
+        APITokenAuth.get_jwt_identity()
     secret_key = request.headers.get('secret_key')
     try:
         # check if link is not a secret link
