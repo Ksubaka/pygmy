@@ -53,7 +53,7 @@ class Configuration:
         self.logging = self.cfg['logging']
         self.webservice_url = "{0}://{1}:{2}".format(
             self.schema, self.host, self.port)
-        self.enable_signup_endpoint = self.cfg['pygmy']['enable_signup_endpoint']
+        self.enable_signup_endpoint = (self.cfg['pygmy']['enable_signup_endpoint'] == 'True')
 
         if self.database['engine'] == 'sqlite3':
             root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
