@@ -87,24 +87,30 @@ class ShortURLApi(MethodView):
         return jsonify(result.data), 200
 
 
+@APITokenAuth.token_required
+def resolve_stats(code):
+    """Show the stats for the short url"""
+    try:
+        stats = link_stats(code)
+        response = jsonify(stats)
+        if stats is None:
+            response = jsonify({'error': 'URL not found or disabled'}), 404
+    except LinkExpired:
+        response = jsonify(dict(error="Link has expired")), 404
+    except URLAuthFailed:
+        response = jsonify({'error': 'Access to URL forbidden'}), 403
+    except (URLNotFound, AssertionError):
+        response = jsonify({'error': 'URL not found or disabled'}), 404
+    return response
+
+
 @APITokenAuth.token_optional
-def resolve(code):
+def resolve_url(code):
     """Resolve the short url. code=301 PERMANENT REDIRECTION"""
-    # TODO not needed
-    user_email = \
-        APITokenAuth.get_jwt_identity()
     secret_key = request.headers.get('secret_key')
     try:
-        # check if link is not a secret link
-        if code.startswith('+') or code.endswith('+'):
-            stats = link_stats(code)
-            response = jsonify(stats)
-            if stats is None:
-                response = jsonify({'error': 'URL not found or disabled'}), 404
-        else:
-            long_url = resolve_short(
-                code.strip('+'), request=request, secret_key=secret_key)
-            response = redirect(long_url, code=301)
+        long_url = resolve_short(code.strip('+'), request=request, secret_key=secret_key)
+        response = redirect(long_url, code=301)
     except LinkExpired:
         response = jsonify(dict(error="Link has expired")), 404
     except URLAuthFailed:
