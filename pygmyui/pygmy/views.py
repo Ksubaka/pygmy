@@ -10,7 +10,6 @@ from restclient.errors import ObjectNotFound, UnAuthorized, LinkExpired, \
     InvalidInput
 from restclient.error_msg import *
 
-
 # TODO: [IMP] middleware to return 500 page when internal error occurs.
 AUTH_COOKIE_NAME = settings.AUTH_COOKIE_NAME
 MAX_SHORT_CODE_LEN = 8
@@ -87,8 +86,8 @@ def get_short_link(request, code):
             schema = 'https://' if request.is_secure() else 'http://'
             url_obj = {}
             url_obj['short_url'] = (
-                schema + request.META['HTTP_HOST'] + '/' + url_obj.get(
-                    'short_code', code)
+                    schema + request.META['HTTP_HOST'] + '/' + url_obj.get(
+                'short_code', code)
             )
         except ObjectNotFound as e:
             return render(request, '404.html',
@@ -224,8 +223,11 @@ def check_available(request):
 
 def is_client_ip_allowed_to_access(request):
     try:
-        x_forwarded_for = request.META['HTTP_X_FORWARDED_FOR']
-        ip = x_forwarded_for.split(',')[-1]
+        # if we haven't provided list of allowed IPs then all are allowed
+        if not settings.ALLOWED_CLIENT_IPS:
+            return True
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        ip = x_forwarded_for.split(',')[-1] if x_forwarded_for else request.META.get('REMOTE_ADDR')
         return ip in settings.ALLOWED_CLIENT_IPS
     except:
         pass
