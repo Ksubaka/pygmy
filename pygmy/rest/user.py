@@ -27,7 +27,7 @@ class UserApi(MethodView):
         return jsonify(result.data), 200
 
     def post(self):
-        if not config.pygmy.get('enable_signup_endpoint'):
+        if not config.enable_signup_endpoint:
             return jsonify(dict(error="Forbidden")), 403
         # TODO: post should behave like upsert
         manager = UserManager()
