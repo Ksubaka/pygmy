@@ -10,7 +10,6 @@ from restclient.errors import ObjectNotFound, UnAuthorized, LinkExpired, \
     InvalidInput
 from restclient.error_msg import *
 
-
 # TODO: [IMP] middleware to return 500 page when internal error occurs.
 AUTH_COOKIE_NAME = settings.AUTH_COOKIE_NAME
 MAX_SHORT_CODE_LEN = 8
@@ -43,6 +42,9 @@ class URLForm(forms.Form):
 
 
 def link_shortener(request):
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     pygmy_client = pygmy_client_object(settings, request)
     if request.method == 'POST':
         form = URLForm(request.POST)
@@ -75,14 +77,17 @@ def link_shortener(request):
 
 def get_short_link(request, code):
     """TODO: Validate code"""
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     if request.method == 'GET':
         try:
             # TODO: use urljoin
             schema = 'https://' if request.is_secure() else 'http://'
             url_obj = {}
             url_obj['short_url'] = (
-                schema + request.META['HTTP_HOST'] + '/' + url_obj.get(
-                    'short_code', code)
+                    schema + request.META['HTTP_HOST'] + '/' + url_obj.get(
+                'short_code', code)
             )
         except ObjectNotFound as e:
             return render(request, '404.html',
@@ -109,6 +114,9 @@ def link_unshorten(request, code):
 
 def short_link_stats(request, code):
     """Get stats about short code."""
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     pygmy_client = pygmy_client_object(settings, request)
     if request.method == 'GET':
         try:
@@ -130,6 +138,9 @@ def short_link_stats(request, code):
 
 def link_auth(request):
     """View for handeling protected short links"""
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     if request.method == 'GET':
         code = request.GET.get('next')
         if not code:
@@ -162,6 +173,9 @@ def link_auth(request):
 
 def dashboard(request):
     """Returns the list of signed up user links"""
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     access_token = request.COOKIES.get(AUTH_COOKIE_NAME)
     if not access_token:
         return render(request, '400.html', context=INVALID_TOKEN, status=400)
@@ -182,6 +196,9 @@ def dashboard(request):
 
 def index(request):
     """Index page"""
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     response = render(request, 'pygmy/index.html')
     if (request.COOKIES.get(AUTH_COOKIE_NAME) and
             request.COOKIES.get('refresh_token')):
@@ -193,9 +210,25 @@ def index(request):
 
 
 def check_available(request):
+    if not is_client_ip_allowed_to_access(request):
+        return render(request, 'unauthorized.html', status=403)
+
     custom_code = request.GET.get('custom_code')
     if not custom_code:
         return JsonResponse(dict(ok=False))
     pygmy_client = pygmy_client_object(settings, request)
     is_available = pygmy_client.is_available(custom_code)
     return JsonResponse(dict(ok=is_available))
+
+
+def is_client_ip_allowed_to_access(request):
+    try:
+        # if we haven't provided list of allowed IPs then all are allowed
+        if not settings.ALLOWED_CLIENT_IPS:
+            return True
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        ip = x_forwarded_for.split(',')[-1] if x_forwarded_for else request.META.get('REMOTE_ADDR')
+        return ip in settings.ALLOWED_CLIENT_IPS
+    except:
+        pass
+    return False

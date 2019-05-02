@@ -1,5 +1,5 @@
 from pygmy.rest.shorturl import (
-    LongUrlApi, ShortURLApi, resolve, dummy, health, link_stats)
+    LongUrlApi, ShortURLApi, resolve_url, resolve_stats, dummy, health)
 from pygmy.rest.user import UserApi, Auth, get_links
 from pygmy.rest.jwt_views import refresh
 from pygmy.rest.manage import app
@@ -42,5 +42,6 @@ app.add_url_rule('/favicon.ico', view_func=dummy, methods=ONLY_GET)
 # Health check
 app.add_url_rule('/health', view_func=health, methods=ONLY_GET)
 
-# This should be last
-app.add_url_rule('/<code>', view_func=resolve, methods=ONLY_GET)
+# These should be last
+app.add_url_rule('/<code>+', view_func=resolve_stats, methods=ONLY_GET)
+app.add_url_rule('/<code>', view_func=resolve_url, methods=ONLY_GET)

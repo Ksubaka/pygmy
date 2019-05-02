@@ -15,11 +15,11 @@ services:
       POSTGRES_DB: pygmy
 
   pygmy:
-    image: amit19/pygmy
+    image: pygmy
     restart: always
     build: .
-    # ports:
-    #  - "9119:9119"
+    ports:
+      - "9119:9119"
     links:
       - database
     environment:
@@ -35,7 +35,7 @@ services:
       - database
 
   pygmyui:
-    image: amit19/pygmy
+    image: pygmy
     restart: always
     build: .
     ports:
@@ -44,6 +44,8 @@ services:
       - pygmy
     environment:
       - PYGMY_API_ADDRESS=pygmy
+# comment the following line out to allow all IPs. Needed for testing locally
+      - PYGMY_ALLOWED_CLIENT_IPS=80.250.101.2
     command: sh -c "cd pygmyui && gunicorn --log-file /var/log/pygmy/uierror_logs.log --access-logfile /var/log/pygmy/uiacclogs.log --bind 0.0.0.0:8000 --workers 2 pygmyui.wsgi && cd .."
     depends_on:
       - pygmy
