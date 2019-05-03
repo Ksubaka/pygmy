@@ -1,5 +1,6 @@
 """Pygmy REST api client"""
 import requests
+import logging
 
 from restclient.base import Client, catch_connection_error
 from restclient.errors import (
@@ -13,6 +14,11 @@ __all__ = [
 AUTH_COOKIE_NAME = 'access_token'
 REFRESH_COOKIE_NAME = 'refresh_token'
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level = logging.DEBUG,
+    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 
 class PygmyApiClient(Client):
     """Pygmy REST API wrapper class"""
@@ -136,7 +142,9 @@ class PygmyApiClient(Client):
         :return:
         """
         short_code = urlparse(short_url_code).path.strip('/')
-        url_path = '/api/unshorten?url=' + self.rest_url + '/' + short_code
+        
+        url_path = '/api/unshorten?url=' + self.HOSTNAME + '/' + short_code
+        
         r = self.call(url_path, headers=dict(secret_key=secret))
         resp = r.json()
         if resp.get('short_code'):

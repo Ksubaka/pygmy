@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from restclient.errors import (
     RestAPIConnectionError, RestClientException, ObjectNotFound,
     LinkExpired, UnAuthorized, InvalidInput)
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 
 __all__ = [
@@ -63,7 +63,11 @@ class Client:
 
     @staticmethod
     def makeurl(base_url, path):
-        return urljoin(base_url, path)
+        parsed = urlparse(base_url)
+        if parsed.path is not '':
+            path = "/" + path if not parsed.path.endswith('/') else path
+            path = parsed.path + path
+        return urljoin(base_url, path) 
 
     def call(self, path, data=None, method=None,
              return_for_status=[], headers=None):
