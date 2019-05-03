@@ -43,7 +43,7 @@ services:
     links:
       - pygmy
     environment:
-      - PYGMY_API_ADDRESS=pygmy
+      - PYGMY_API_ADDRESS=pygmy:9119
 # comment the following line out to allow all IPs. Needed for testing locally
       - PYGMY_ALLOWED_CLIENT_IPS=80.250.101.2
     command: sh -c "cd pygmyui && gunicorn --log-file /var/log/pygmy/uierror_logs.log --access-logfile /var/log/pygmy/uiacclogs.log --bind 0.0.0.0:8000 --workers 2 pygmyui.wsgi && cd .."
