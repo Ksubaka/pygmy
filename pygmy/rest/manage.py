@@ -8,8 +8,8 @@ from pygmy.config import config
 app = Flask(__name__)
 CORS(app)
 app.config['DEBUG'] = True
-app.config.setdefault('JWT_ACCESS_TOKEN_EXPIRES', datetime.timedelta(minutes=1))
-app.config.setdefault('JWT_REFRESH_TOKEN_EXPIRES', datetime.timedelta(days=7))
+app.config.setdefault('JWT_ACCESS_TOKEN_EXPIRES', datetime.timedelta(**{'seconds': int(eval(config.access_token_expire_time_sec))}))
+app.config.setdefault('JWT_REFRESH_TOKEN_EXPIRES', datetime.timedelta(**{'seconds': int(eval(config.refresh_token_expire_time_sec))}))
 app.config.setdefault('JWT_HEADER_NAME', 'JWT_Authorization')
 app.secret_key = config.secret
 

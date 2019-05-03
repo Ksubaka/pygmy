@@ -20,6 +20,8 @@ class Configuration:
         self.webservice_url = None
         self.database = None
         self.enable_signup_endpoint = False
+        self.access_token_expire_time_sec = 60
+        self.refresh_token_expire_time_sec = 60*60
         self.initialize()
 
     def _read_cfg(self):
@@ -54,6 +56,8 @@ class Configuration:
         self.webservice_url = "{0}://{1}:{2}".format(
             self.schema, self.host, self.port)
         self.enable_signup_endpoint = (self.cfg['pygmy']['enable_signup_endpoint'] == 'True')
+        self.access_token_expire_time_sec = (self.cfg['auth']['access_token_expire_time_sec'])
+        self.refresh_token_expire_time_sec = (self.cfg['auth']['refresh_token_expire_time_sec'])
 
         if self.database['engine'] == 'sqlite3':
             root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
