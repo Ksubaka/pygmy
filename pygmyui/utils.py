@@ -31,5 +31,11 @@ def pygmy_client_object(config, request):
     rest_url = make_url(pygmy_api_host)
     logger.debug('API URL: %s', rest_url)
     
-    hostname = config.HOSTNAME
+    # Check if HOSTNAME enviornment varibale is set
+    if os.environ.get('HOSTNAME'):
+        hostname = os.environ.get('HOSTNAME')
+        logger.info('Using environment variable HOSTNAME. Hostname URL: %s', hostname)
+    else:
+        hostname = config.HOSTNAME
+
     return PygmyApiClient(rest_url, rest_user, rest_pass, hostname, request)
