@@ -1,5 +1,6 @@
 
 from functools import wraps
+
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql import expression
@@ -38,4 +39,4 @@ def __utcnow_default(element, compiler, **kw):
 
 @compiles(utcnow, 'postgresql')
 def __utcnow_pg(element, compiler, **kw):
-    return "TIMEZONE('utc', CURRENT_TIMESTAMP)"
+    return "CLOCK_TIMESTAMP()"
